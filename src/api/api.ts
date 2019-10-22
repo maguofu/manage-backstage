@@ -8,7 +8,7 @@ const apiInfo = {
   },
 };
 export default {
-  searchGoods: (params, options) => {
+  searchGoods: (params:any, options?:any) => {
     return $http(apiInfo.searchGoods, params, options)
   },
 }

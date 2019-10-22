@@ -23,13 +23,13 @@
       </div>
     </div>
     <div v-if="showErrTips" class="retry-con">
-      <p class="retry" @click="retry">请求出错~,请重试！</p>
+      <p class="retry" @click="retry">{{searchErrTips}}</p>
     </div>
   </div>
 </template>
 <script lang="ts">
   import { Vue, Component } from "vue-property-decorator";
-  import $http from '@src/api/api.js';
+  import $http from '@src/api/api';
   @Component({
     components: {
     }
@@ -59,7 +59,7 @@
      */
     searchAction() {
       if (!this.searchContent) {return}
-      ($http as any).searchGoods({
+      $http.searchGoods({
         id: this.searchContent,
       }).then((res:any) => {
         if (!res.errNo) {
@@ -67,7 +67,6 @@
           this.showErrTips = false;
         } else {
           this.showErrTips = true;
-          this.searchErrTips = `${this.searchErrTips}${res.errStr}`;
         }
       }).catch((e:any) => {
         this.showErrTips = true;
@@ -115,7 +114,7 @@
   .search-result{
     padding: 0 .2rem;
     overflow: hidden;
-    font-size: .2rem;
+    font-size: .24rem;
     color: #333;
     margin-top: 1rem;
     .line{
