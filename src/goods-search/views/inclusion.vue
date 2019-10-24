@@ -2,7 +2,7 @@
   <div class="inclusion">
     <p class="read-file-err" v-if="readErr">{{readErr}}</p>
     <input type="file" class="choose-file" multiple="multiple" @change="inclusionImg">
-    <div class="show-img-con" v-show="fileData">
+    <div class="show-img-con" v-show="fileData.length">
       <img v-for="(item, index) in fileData" :key="index" :src="item" alt="">
     </div>
     <div class="input-con id">
@@ -97,6 +97,7 @@
      * 读取文件方法（默认处理方式是图片资源）
      */
     inclusionImg(e: any){
+      this.fileData = [];
       this.isSubmited = false;
       // 这是一个对象key是0，1，2，3...length
       const files = e.target.files;
