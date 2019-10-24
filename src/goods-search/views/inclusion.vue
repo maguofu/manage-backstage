@@ -1,9 +1,13 @@
 <template>
   <div class="inclusion">
     <p class="read-file-err" v-if="readErr">{{readErr}}</p>
-    <input type="file" class="choose-file" @change="inclusionImg">
+    <input type="file" class="choose-file" multiple="multiple" @change="inclusionImg">
     <div class="show-img-con" v-show="fileData">
-      <img :src="fileData" alt="">
+      <img v-for="(item, index) in fileData" :key="index" :src="item" alt="">
+    </div>
+    <div class="input-con id">
+      <p>id：</p>
+      <input type="number" v-model="id">
     </div>
     <div class="input-con name">
       <p>名称：</p>
@@ -21,7 +25,7 @@
       <p>描述：</p>
       <textarea name="" id="" cols="30" rows="10" v-model="description"></textarea>
     </div>
-    <div class="submit" @click="inclusionSubmit">提交</div>
+    <div class="submit" @click="inclusionSubmit" :class="[{'disabled': isSubmited}]">提交</div>
   </div>
 </template>
 <script lang="ts">
@@ -37,7 +41,7 @@
      * 读取的文件数据（格式有二进制、base64，当前使用的是base64）
      * FileReader的实例的readAsBinaryString读取方法返回的是二进制
      */
-    private fileData:any = '';
+    private fileData:any = [];
     // 文件读取失败的提示
     private readErr: string = '';
     // 录入的名称
@@ -48,6 +52,14 @@
     private salePrice: number = 220;
     // 录入的描述
     private description: string = '';
+    // id
+    private id: any = null;
+    // 当前执行getFileData函数的文件index
+    currentIndex: number = 0;
+    // 选择的文件列表
+    filesList:any = [];
+    // 当前选中的文件已经上传提交过
+    isSubmited: boolean = false;
 
     created() {
       if(typeof FileReader === 'undefined'){
@@ -55,35 +67,64 @@
       }
     }
     /**
-     * 读取文件方法（默认处理方式是图片资源）
+     * 把已经读取的文件处理成可传输的文件数据（base64编码）
      */
-    inclusionImg(e: any){
-      const file = e.target.files[0];
+    getFileData() {
+      if (this.currentIndex === this.filesList.length) {return}
+      let file = this.filesList[this.currentIndex];
       // FileReader的实例
       const reader = new FileReader();
       // 读取文件内容，以base64格式返回结果
-      const fileData = reader.readAsDataURL(file);
+      reader.readAsDataURL(file);
       // 读取文件成功回调
       reader.onload = () => {
-        this.fileData = reader.result;
+        this.fileData.push(reader.result);
+        this.currentIndex++;
+        this.getFileData();
+        console.log(this.fileData);
       };
       // 读取文件失败回调
       reader.onerror = () => {
         this.readErr = '文件读取失败，请重试';
+        this.currentIndex++;
+        this.getFileData();
         setTimeout(() => {
           this.readErr = '';
         }, 2000);
       }
     }
     /**
+     * 读取文件方法（默认处理方式是图片资源）
+     */
+    inclusionImg(e: any){
+      this.isSubmited = false;
+      // 这是一个对象key是0，1，2，3...length
+      const files = e.target.files;
+      for (const key in files) {
+        if (files.hasOwnProperty(key)) {
+          const element = files[key];
+          if (key != 'length') {
+            this.filesList.push(element);
+          }
+        }
+      }
+      this.getFileData();
+    }
+    /**
      * 提交接口
      */
     inclusionSubmit() {
-      if (!this.fileData || !this.name || !this.inComePrice || !this.salePrice || !this.description) {
-        alert('请录入完整信息！');
+      if (!this.fileData) {
+        alert('没有上传的文件！');
         return;
       }
+      if (this.isSubmited) {
+        alert('当前选中的文件已经上传过！');
+        return;
+      }
+      this.isSubmited = true;
       $http.inclusion({
+        id: this.id,
         name: this.name,
         picData: this.fileData,
         inComePrice: this.inComePrice,
@@ -130,6 +171,9 @@
     border: 1px solid #ccc;
     img{
       border: none;
+      width: 100%;
+      margin-top: .5rem;
+      display: block;
     }
   }
   .input-con{
@@ -169,6 +213,9 @@
     margin-top: 1rem;
     margin-bottom: 2rem;
     font-size: .24rem;
+  }
+  .disabled{
+    background: #eee;
   }
 </style>
 
