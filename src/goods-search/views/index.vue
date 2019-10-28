@@ -66,6 +66,7 @@
           this.searchResult = res.data;
           this.showErrTips = false;
         } else {
+          this.searchResult = {};
           this.showErrTips = true;
         }
       }).catch((e:any) => {

@@ -7,7 +7,7 @@ const apiInfo = {
     method: 'post'
   },
   inclusion: {
-    url: `/study/mock/submit`,
+    url: `/study/mock/acceptimg`,
     method: 'post'
   },
 };

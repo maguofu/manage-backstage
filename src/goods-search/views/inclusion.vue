@@ -76,6 +76,7 @@
       const reader = new FileReader();
       // 读取文件内容，以base64格式返回结果
       reader.readAsDataURL(file);
+      // reader.readAsBinaryString(file);
       // 读取文件成功回调
       reader.onload = () => {
         this.fileData.push(reader.result);
@@ -115,12 +116,16 @@
      * 提交接口
      */
     inclusionSubmit() {
-      if (!this.fileData) {
+      if (!this.fileData.length) {
         alert('没有上传的文件！');
         return;
       }
       if (this.isSubmited) {
         alert('当前选中的文件已经上传过！');
+        return;
+      }
+      if (!this.id && (!this.name || !this.inComePrice || !this.salePrice || !this.description)) {
+        alert('首次录入，请填写除id以外的完整信息！');
         return;
       }
       this.isSubmited = true;
@@ -133,9 +138,11 @@
         description: this.description
       }).then((res:any) => {
         if (res.errNo){
+          this.isSubmited = false;
           alert('录入失败，请重试！');
         }
       }).catch((e:any) => {
+        this.isSubmited = false;
         console.log(JSON.stringify(e));
         alert('录入失败，请重试！');
       })
